@@ -211,7 +211,7 @@ module BootstrapForm
     end
 
     def generate_help(name, help_text)
-      help_text = object.errors[name].join(", ") if has_error?(name) && inline_errors
+      help_text = object.errors[name][0] if has_error?(name) && inline_errors
       content_tag(:span, help_text, class: "help-block") if help_text
     end
 
