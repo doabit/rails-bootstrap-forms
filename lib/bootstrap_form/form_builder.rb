@@ -198,12 +198,15 @@ module BootstrapForm
     end
 
     def generate_label(name, options, custom_label_col, group_layout)
+      required_attribute = object.class.validators_on(name).any? { |v| v.kind_of?( ActiveModel::Validations::PresenceValidator ) && valid_validator?( v ) } if name
       if options
         classes = [options[:class], label_class]
         classes << (custom_label_col || label_col) if get_group_layout(group_layout) == :horizontal
         options[:class] = classes.compact.join(" ")
 
-        label(name, options[:text], options.except(:text))
+        text = options[:text] || object.class.human_attribute_name(name)
+        text = "<abbr title='required'>*</abbr> #{text}".html_safe if required_attribute
+        label(name, text, options.except(:text))
       elsif get_group_layout(group_layout) == :horizontal
         # no label. create an empty one to keep proper form alignment.
         content_tag(:label, "", class: "#{label_class} #{label_col}")
@@ -230,5 +233,25 @@ module BootstrapForm
         inputs.html_safe
       end
     end
+
+    def valid_validator?(validator)
+       !conditional_validators?(validator) && action_validator_match?(validator)
+     end
+
+     def conditional_validators?(validator)
+       validator.options.include?(:if) || validator.options.include?(:unless)
+     end
+
+     def action_validator_match?(validator)
+       return true if !validator.options.include?(:on)
+       case validator.options[:on]
+       when :save
+         true
+       when :create
+         !object.persisted?
+       when :update
+         object.persisted?
+       end
+     end
   end
 end
