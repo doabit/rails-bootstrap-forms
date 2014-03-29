@@ -35,7 +35,7 @@ Then require the CSS on your `application.css` file:
 
 ## Usage
 
-To get started, just use the **Rails Bootstrap Forms** form helper. Here's an example:
+To get started, just use the `bootstrap_form_for` helper. Here's an example:
 
 ```erb
 <%= bootstrap_form_for(@user) do |f| %>
@@ -66,6 +66,17 @@ This generates the following HTML:
   </div>
   <input class="btn btn-default" name="commit" type="submit" value="Log In">
 </form>
+```
+
+### bootstrap_form_tag
+
+If your form is not backed by a model, use the `bootstrap_form_tag`. Usage of this helper is the same as `bootstrap_form_for`, except no model object is passed in as the first argument. Here's an example:
+
+```erb
+<%= bootstrap_form_tag url: '/subscribe' do |f| %>
+  <%= f.email_field :email %>
+  <%= f.submit %>
+<% end %>
 ```
 
 ### Supported Form Helpers
@@ -375,9 +386,32 @@ here: http://guides.rubyonrails.org/i18n.html#translations-for-active-record-mod
 
 http://www.codetriage.com/potenza/bootstrap_form
 
+## Contributing
+
+We love pull requests! Here's a quick guide for contributing:
+
+1. Fork the repo.
+
+2. Run the existing test suite:
+
+  `$ cd test/dummy && bundle exec rake db:create db:migrate RAILS_ENV=test && cd ../../`
+  `$ bundle exec rake`
+
+3. Add tests for your change.
+
+4. Add your changes and make your test(s) pass. Following the conventions you
+see used in the source will increase the chance that your pull request is
+accepted right away.
+
+5. Update the README if necessary.
+
+6. Add a line to the CHANGELOG for your bug fix or feature.
+
+7. Push to your fork and submit a pull request.
+
 ## Contributors
 
-https://github.com/potenza/bootstrap_form/graphs/contributors
+https://github.com/bootstrap-ruby/rails-bootstrap-forms/graphs/contributors
 
 ## License
 

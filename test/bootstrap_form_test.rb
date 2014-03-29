@@ -29,6 +29,16 @@ class BootstrapFormTest < ActionView::TestCase
     assert_equal expected, bootstrap_form_for(@user, layout: :horizontal, html: { class: "my-style" }) { |f| f.email_field :email }
   end
 
+  test "bootstrap_form_tag acts like a form tag" do
+    expected = %{<form accept-charset="UTF-8" action="/users" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div><div class="form-group"><label class="control-label" for="email">Email</label><input class="form-control" id="email" name="email" type="text" /></div></form>}
+    assert_equal expected, bootstrap_form_tag(url: '/users') { |f| f.text_field :email }
+  end
+
+  test "bootstrap_form_tag does not clobber custom options" do
+    expected = %{<form accept-charset="UTF-8" action="/users" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div><div class="form-group"><label class="control-label" for="FOR">Email</label><input class="form-control" id="ID" name="NAME" type="text" /></div></form>}
+    assert_equal expected, bootstrap_form_tag(url: '/users') { |f| f.text_field :email, label: {for: 'FOR'}, name: 'NAME', id: "ID" }
+  end
+
   test "alert message is wrapped correctly" do
     @user.email = nil
     @user.valid?
@@ -51,7 +61,7 @@ class BootstrapFormTest < ActionView::TestCase
       f.alert_message('Please fix the following errors:')
     end
 
-    expected = %{<form accept-charset="UTF-8" action="/users" class="new_user" id="new_user" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div><div class="alert alert-danger"><p>Please fix the following errors:</p><ul class="rails-bootstrap-forms-error-summary"><li>Email can&#39;t be blank</li><li>Email is too short (minimum is 5 characters)</li></ul></div></form>}
+    expected = %{<form accept-charset="UTF-8" action="/users" class="new_user" id="new_user" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div><div class="alert alert-danger"><p>Please fix the following errors:</p><ul class="rails-bootstrap-forms-error-summary"><li>Email can&#39;t be blank</li><li>Email is too short (minimum is 5 characters)</li><li>Terms must be accepted</li></ul></div></form>}
     assert_equal expected, output
   end
 
@@ -71,7 +81,7 @@ class BootstrapFormTest < ActionView::TestCase
     @user.email = nil
     @user.valid?
 
-    expected = %{<ul class="rails-bootstrap-forms-error-summary"><li>Email can&#39;t be blank</li><li>Email is too short (minimum is 5 characters)</li></ul>}
+    expected = %{<ul class="rails-bootstrap-forms-error-summary"><li>Email can&#39;t be blank</li><li>Email is too short (minimum is 5 characters)</li><li>Terms must be accepted</li></ul>}
     assert_equal expected, @builder.error_summary
   end
 
@@ -114,7 +124,7 @@ class BootstrapFormTest < ActionView::TestCase
   end
 
   test "hidden fields are supported" do
-    expected = %{<input id=\"user_misc\" name=\"user[misc]\" type=\"hidden\" />}
+    expected = %{<input id="user_misc" name="user[misc]" type="hidden" />}
     assert_equal expected, @builder.hidden_field(:misc)
   end
 
@@ -180,7 +190,7 @@ class BootstrapFormTest < ActionView::TestCase
   end
 
   test "bootstrap_specific options are handled correctly" do
-    expected = %{<div class="form-group"><label class="control-label" for="user_status">My Status Label</label><select class="form-control" id="user_status" name="user[status]"><option value="1">activated</option>\n<option value="2">blocked</option></select><span class=\"help-block\">Help!</span></div>}
+    expected = %{<div class="form-group"><label class="control-label" for="user_status">My Status Label</label><select class="form-control" id="user_status" name="user[status]"><option value="1">activated</option>\n<option value="2">blocked</option></select><span class="help-block">Help!</span></div>}
     assert_equal expected, @builder.select(:status, [['activated', 1], ['blocked', 2]], label: "My Status Label", help: "Help!" )
   end
 
@@ -293,37 +303,37 @@ class BootstrapFormTest < ActionView::TestCase
   end
 
   test "check_box is wrapped correctly" do
-    expected = %{<div class="checkbox"><label for="user_misc"><input name="user[misc]" type="hidden" value="0" /><input id="user_misc" name="user[misc]" type="checkbox" value="1" /> This is a checkbox</label></div>}
-    assert_equal expected, @builder.check_box(:misc, label: 'This is a checkbox')
+    expected = %{<div class="checkbox"><label for="user_terms"><input name="user[terms]" type="hidden" value="0" /><input id="user_terms" name="user[terms]" type="checkbox" value="1" /> I agree to the terms</label></div>}
+    assert_equal expected, @builder.check_box(:terms, label: 'I agree to the terms')
   end
 
   test "check_box label allows html" do
-    expected = %{<div class="checkbox"><label for="user_misc"><input name="user[misc]" type="hidden" value="0" /><input id="user_misc" name="user[misc]" type="checkbox" value="1" /> This is a <a href="#">checkbox</a></label></div>}
-    assert_equal expected, @builder.check_box(:misc, label: %{This is a <a href="#">checkbox</a>}.html_safe)
+    expected = %{<div class="checkbox"><label for="user_terms"><input name="user[terms]" type="hidden" value="0" /><input id="user_terms" name="user[terms]" type="checkbox" value="1" /> I agree to the <a href="#">terms</a></label></div>}
+    assert_equal expected, @builder.check_box(:terms, label: %{I agree to the <a href="#">terms</a>}.html_safe)
   end
 
   test "check_box accepts a block to define the label" do
-    expected = %{<div class="checkbox"><label for="user_misc"><input name="user[misc]" type="hidden" value="0" /><input id="user_misc" name="user[misc]" type="checkbox" value="1" /> This is a checkbox</label></div>}
-    assert_equal expected, @builder.check_box(:misc) { "This is a checkbox" }
+    expected = %{<div class="checkbox"><label for="user_terms"><input name="user[terms]" type="hidden" value="0" /><input id="user_terms" name="user[terms]" type="checkbox" value="1" /> I agree to the terms</label></div>}
+    assert_equal expected, @builder.check_box(:terms) { "I agree to the terms" }
   end
 
   test "check_box responds to checked_value and unchecked_value arguments" do
-    expected = %{<div class="checkbox"><label for="user_misc"><input name="user[misc]" type="hidden" value="no" /><input id="user_misc" name="user[misc]" type="checkbox" value="yes" /> This is a checkbox</label></div>}
-    assert_equal expected, @builder.check_box(:misc, {label: 'This is a checkbox'}, 'yes', 'no')
+    expected = %{<div class="checkbox"><label for="user_terms"><input name="user[terms]" type="hidden" value="no" /><input id="user_terms" name="user[terms]" type="checkbox" value="yes" /> I agree to the terms</label></div>}
+    assert_equal expected, @builder.check_box(:terms, {label: 'I agree to the terms'}, 'yes', 'no')
   end
 
   test "inline checkboxes" do
-    expected = %{<label class="checkbox-inline" for="user_misc"><input name="user[misc]" type="hidden" value="0" /><input id="user_misc" name="user[misc]" type="checkbox" value="1" /> This is a checkbox</label>}
-    assert_equal expected, @builder.check_box(:misc, label: 'This is a checkbox', inline: true)
+    expected = %{<label class="checkbox-inline" for="user_terms"><input name="user[terms]" type="hidden" value="0" /><input id="user_terms" name="user[terms]" type="checkbox" value="1" /> I agree to the terms</label>}
+    assert_equal expected, @builder.check_box(:terms, label: 'I agree to the terms', inline: true)
   end
 
   test "radio_button is wrapped correctly" do
-    expected = %{<label class="radio" for="user_misc_1"><input id="user_misc_1" name="user[misc]" type="radio" value="1" /> This is a radio button</label>}
+    expected = %{<label class="radio"><input id="user_misc_1" name="user[misc]" type="radio" value="1" /> This is a radio button</label>}
     assert_equal expected, @builder.radio_button(:misc, '1', label: 'This is a radio button')
   end
 
   test "radio_button inline label is set correctly" do
-    expected = %{<label class="radio-inline" for="user_misc_1"><input id="user_misc_1" name="user[misc]" type="radio" value="1" /> This is a radio button</label>}
+    expected = %{<label class="radio-inline"><input id="user_misc_1" name="user[misc]" type="radio" value="1" /> This is a radio button</label>}
     assert_equal expected, @builder.radio_button(:misc, '1', label: 'This is a radio button', inline: true)
   end
 
@@ -470,7 +480,7 @@ class BootstrapFormTest < ActionView::TestCase
     @user.email = nil
     @user.valid?
 
-    output = bootstrap_form_for(@user, help: :block) do |f|
+    output = bootstrap_form_for(@user) do |f|
       f.text_field(:email, help: 'This is required')
     end
 
@@ -494,7 +504,7 @@ class BootstrapFormTest < ActionView::TestCase
     @user.email = nil
     @user.valid?
 
-    output = form_for(@user, builder: BootstrapForm::FormBuilder, help: :block) do |f|
+    output = form_for(@user, builder: BootstrapForm::FormBuilder) do |f|
       f.text_field(:email, help: 'This is required')
     end
 
@@ -562,28 +572,28 @@ class BootstrapFormTest < ActionView::TestCase
 
   test 'collection_radio_buttons renders the form_group correctly' do
     collection = [Address.new(id: 1, street: 'Foobar')]
-    expected = %{<div class="form-group"><label class="control-label" for="user_misc">This is a radio button collection</label><label class="radio" for="user_misc_1"><input id="user_misc_1" name="user[misc]" type="radio" value="1" /> Foobar</label><span class="help-block">With a help!</span></div>}
+    expected = %{<div class="form-group"><label class="control-label" for="user_misc">This is a radio button collection</label><label class="radio"><input id="user_misc_1" name="user[misc]" type="radio" value="1" /> Foobar</label><span class="help-block">With a help!</span></div>}
 
     assert_equal expected, @builder.collection_radio_buttons(:misc, collection, :id, :street, label: 'This is a radio button collection', help: 'With a help!')
   end
 
   test 'collection_radio_buttons renders multiple radios correctly' do
     collection = [Address.new(id: 1, street: 'Foo'), Address.new(id: 2, street: 'Bar')]
-    expected = %{<div class="form-group"><label class="control-label" for="user_misc">Misc</label><label class="radio" for="user_misc_1"><input id="user_misc_1" name="user[misc]" type="radio" value="1" /> Foo</label><label class="radio" for="user_misc_2"><input id="user_misc_2" name="user[misc]" type="radio" value="2" /> Bar</label></div>}
+    expected = %{<div class="form-group"><label class="control-label" for="user_misc">Misc</label><label class="radio"><input id="user_misc_1" name="user[misc]" type="radio" value="1" /> Foo</label><label class="radio"><input id="user_misc_2" name="user[misc]" type="radio" value="2" /> Bar</label></div>}
 
     assert_equal expected, @builder.collection_radio_buttons(:misc, collection, :id, :street)
   end
 
   test 'collection_radio_buttons renders inline radios correctly' do
     collection = [Address.new(id: 1, street: 'Foo'), Address.new(id: 2, street: 'Bar')]
-    expected = %{<div class="form-group"><label class="control-label" for="user_misc">Misc</label><label class="radio-inline" for="user_misc_1"><input id="user_misc_1" name="user[misc]" type="radio" value="1" /> Foo</label><label class="radio-inline" for="user_misc_2"><input id="user_misc_2" name="user[misc]" type="radio" value="2" /> Bar</label></div>}
+    expected = %{<div class="form-group"><label class="control-label" for="user_misc">Misc</label><label class="radio-inline"><input id="user_misc_1" name="user[misc]" type="radio" value="1" /> Foo</label><label class="radio-inline"><input id="user_misc_2" name="user[misc]" type="radio" value="2" /> Bar</label></div>}
 
     assert_equal expected, @builder.collection_radio_buttons(:misc, collection, :id, :street, inline: true)
   end
 
   test 'collection_radio_buttons renders with checked option correctly' do
     collection = [Address.new(id: 1, street: 'Foo'), Address.new(id: 2, street: 'Bar')]
-    expected = %{<div class="form-group"><label class="control-label" for="user_misc">Misc</label><label class="radio" for="user_misc_1"><input checked="checked" id="user_misc_1" name="user[misc]" type="radio" value="1" /> Foo</label><label class="radio" for="user_misc_2"><input id="user_misc_2" name="user[misc]" type="radio" value="2" /> Bar</label></div>}
+    expected = %{<div class="form-group"><label class="control-label" for="user_misc">Misc</label><label class="radio"><input checked="checked" id="user_misc_1" name="user[misc]" type="radio" value="1" /> Foo</label><label class="radio"><input id="user_misc_2" name="user[misc]" type="radio" value="2" /> Bar</label></div>}
 
     assert_equal expected, @builder.collection_radio_buttons(:misc, collection, :id, :street, checked: 1)
   end

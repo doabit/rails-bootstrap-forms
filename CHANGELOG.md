@@ -14,6 +14,7 @@ Bugfixes:
   - omit form-control class from file_field (@mbrictson)
   - Collection inputs honour `checked` attribute (@desheikh)
   - Fixing label/input pairing for checkbox collections (@byped)
+  - Removing for attribute on radio button labels (@sigmike)
 
 Features:
 
@@ -37,3 +38,4 @@ Features:
   - Renamed option :style to :layout (@baldwindavid)
   - Added errors_on helper (@baldwindavid)
   - Added per field layout option (@baldwindavid)
+  - Added support for bootstrap_form_tag (@baldwindavid)
