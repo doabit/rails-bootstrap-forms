@@ -1,4 +1,17 @@
-## 2.1.0
+## 2.1.1 (2014-04-20)
+
+Bugfixes:
+
+  - Do not reset additional classes on the form-group (@rzane)
+  - Fixed an exception when specifying a label while using bootstrap_form_tag
+
+Features:
+
+  - [nested_form](https://github.com/ryanb/nested_form) integration via
+    `bootstrap_nested_form_for` (#44 and #66)
+  - `form_group` no longer requires a name (#83)
+
+## 2.1.0 (2014-04-01)
 
 Moved GitHub repository from https://github.com/potenza/bootstrap_form
 to https://github.com/bootstrap-ruby/rails-bootstrap-forms

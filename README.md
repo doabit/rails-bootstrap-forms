@@ -1,14 +1,7 @@
-[![Build Status](https://travis-ci.org/bootstrap-ruby/rails-bootstrap-forms.png)](https://travis-ci.org/bootstrap-ruby/rails-bootstrap-forms) [![Code Climate](https://codeclimate.com/github/bootstrap-ruby/rails-bootstrap-forms.png)](https://codeclimate.com/github/bootstrap-ruby/rails-bootstrap-forms)
+[![Build Status](https://travis-ci.org/bootstrap-ruby/rails-bootstrap-forms.png)](https://travis-ci.org/bootstrap-ruby/rails-bootstrap-forms)
+[![Gem Version](https://badge.fury.io/rb/bootstrap_form.svg)](http://badge.fury.io/rb/bootstrap_form)
 
 # Rails Bootstrap Forms
-
----
-
-NOTE: This README reflects the current master branch, which hasn't been released yet.
-
-Please see https://github.com/bootstrap-ruby/rails-bootstrap-forms/tree/v2.0.1 for the current gem version.
-
----
 
 **Rails Bootstrap Forms** is a rails form builder that makes it super easy to integrate
 twitter bootstrap-style forms into your rails application.
@@ -16,7 +9,7 @@ twitter bootstrap-style forms into your rails application.
 ## Requirements
 
 * Ruby 1.9+
-* Rails 3+
+* Rails 4.0+
 * Twitter Bootstrap 3.0+
 
 ## Installation
@@ -67,6 +60,11 @@ This generates the following HTML:
   <input class="btn btn-default" name="commit" type="submit" value="Log In">
 </form>
 ```
+
+### Nested Forms
+
+In order to active [nested_form](https://github.com/ryanb/nested_form) support,
+use `boostrap_nested_form_for` instead of `bootstrap_form_for`.
 
 ### bootstrap_form_tag
 

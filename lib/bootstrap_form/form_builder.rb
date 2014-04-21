@@ -1,6 +1,8 @@
+require_relative 'helpers/bootstrap'
+
 module BootstrapForm
   class FormBuilder < ActionView::Helpers::FormBuilder
-    include BootstrapForm::BootstrapHelpers
+    include BootstrapForm::Helpers::Bootstrap
 
     attr_reader :layout, :label_col, :control_col, :has_error, :inline_errors, :acts_like_form_tag
 
@@ -118,12 +120,15 @@ module BootstrapForm
       collection_radio_buttons(*args)
     end
 
-    def form_group(name = nil, options = {}, &block)
-      options[:class] = "form-group"
+    def form_group(*args, &block)
+      options = args.extract_options!
+      name    = args.first
+
+      options[:class] = ["form-group", options[:class]].compact.join(' ')
       options[:class] << " #{error_class}" if has_error?(name)
 
-      content_tag(:div, options.except(:label, :help, :label_col, :control_col, :layout)) do
-        label = generate_label(name, options[:label], options[:label_col], options[:layout])
+      content_tag(:div, options.except(:id, :label, :help, :label_col, :control_col, :layout)) do
+        label = generate_label(options[:id], name, options[:label], options[:label_col], options[:layout])
         control_and_help = capture(&block).concat(generate_help(name, options[:help]))
         if get_group_layout(options[:layout]) == :horizontal
           control_and_help = content_tag(:div, control_and_help, class: (options[:control_col] || control_col))
@@ -135,7 +140,7 @@ module BootstrapForm
     def fields_for(record_name, record_object = nil, fields_options = {}, &block)
       fields_options, record_object = record_object, nil if record_object.is_a?(Hash) && record_object.extractable_options?
       fields_options[:layout] ||= options[:layout]
-      fields_options[:label_col] = (fields_options.include?(:label_col)) ? fields_options[:label_col] + " #{label_class}" : options[:label_col]
+      fields_options[:label_col] = fields_options[:label_col].present? ? "#{fields_options[:label_col]} #{label_class}" : options[:label_col]
       fields_options[:control_col] ||= options[:control_col]
       super(record_name, record_object, fields_options, &block)
     end
@@ -200,7 +205,7 @@ module BootstrapForm
       control_col = options.delete(:control_col)
       layout = get_group_layout(options.delete(:layout))
 
-      form_group(method, label: { text: label, class: label_class }, help: help, label_col: label_col, control_col: control_col, layout: layout) do
+      form_group(method, id: options[:id], label: { text: label, class: label_class }, help: help, label_col: label_col, control_col: control_col, layout: layout) do
         yield
       end
     end
@@ -208,17 +213,13 @@ module BootstrapForm
     def convert_form_tag_options(method, options = {})
       options[:name] ||= method
       options[:id] ||= method
-      if options[:label]
-        options[:label][:for] ||= method
-      else
-        options[:label] = {for: method}
-      end
       options
     end
 
-    def generate_label(name, options, custom_label_col, group_layout)
+    def generate_label(id, name, options, custom_label_col, group_layout)
       required_attribute = object.class.validators_on(name).any? { |v| v.kind_of?( ActiveModel::Validations::PresenceValidator ) && valid_validator?( v ) } if name
       if options
+        options[:for] = id if acts_like_form_tag
         classes = [options[:class], label_class]
         classes << (custom_label_col || label_col) if get_group_layout(group_layout) == :horizontal
         options[:class] = classes.compact.join(" ")
